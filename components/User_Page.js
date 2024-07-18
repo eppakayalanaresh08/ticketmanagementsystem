@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, StatusBar, ActivityIndicator 
 import React, { useState, useEffect, useCallback } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
@@ -9,6 +10,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 
 const User_Page = () => {
+  const navigation = useNavigation()
+
   const [roleCheck, setRoleCheck] = useState('');
 
   const [dataUsers, setDataUsers] = useState([]);
@@ -49,7 +52,14 @@ const User_Page = () => {
       setDataUsers(responseData)
       // console.log(data); // Process the fetched data here
     } catch (error) {
-      // console.error(error);
+      console.log(error,'error');
+      // if(error.status===401){
+      //   navigation.navigate('LoginPage')
+      // }
+
+      if (error.message.includes('401')) {
+        navigation.navigate('LoginPage');
+      }
     }
     setLoading(false)
   }
@@ -121,7 +131,6 @@ const User_Page = () => {
 export default User_Page
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
   head: { height: 40, backgroundColor: '#f1f8ff' },
   text: { margin: 6 },
   table: {
@@ -130,7 +139,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 30,
     paddingHorizontal: 20,
-    // padding:
   },
   row: {
     flexDirection: "row",
@@ -149,13 +157,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     borderColor: "#C4C4C4",
     flex: 1,
-
     fontSize: responsiveFontSize(1.2)
-
   },
 
   cellheadid: {
-
     borderWidth: 0.5,
     color: "black",
     fontWeight: '700',
@@ -166,7 +171,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: responsiveFontSize(1.2),
     borderColor: "#C4C4C4",
-
   },
   cell: {
     flex: 1,
@@ -178,13 +182,9 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1),
     color: "black",
     borderColor: "#C4C4C4",
-
-
-
   },
 
   cellid: {
-
     paddingTop: 10,
     borderWidth: 0.5,
     width: responsiveHeight(8),

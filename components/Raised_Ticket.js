@@ -54,7 +54,6 @@ const Raised_Ticket = () => {
             const role = await AsyncStorage.getItem('rolecheck');
             setRoleCheck(role)
             const jwtToken = await AsyncStorage.getItem('jwtToken');
-            console.log(jwtToken)
 
 
 
@@ -83,7 +82,6 @@ const Raised_Ticket = () => {
                 response2.json()
             ]);
 
-            console.log(responseData1)
 
 
             setDataAlltickets(responseData1)
@@ -144,7 +142,6 @@ const Raised_Ticket = () => {
         setSelectededitState(updateTicket.state)
         setSelectededitSeverity(updateTicket.severity)
         setopenmodelEditticket(!openticketmodeledit)
-        console.log(updateTicket, 'one')
     }
 
     const onhandleEditTicketSubmit = async () => {
@@ -180,7 +177,6 @@ const Raised_Ticket = () => {
             const responseEditTicket = await response.json();
 
 
-            console.log(responseEditTicket, 'new')
             fetchDataAllTickets();
             setLoading(true)
             ToastAndroid.show('Successfully Edited Ticket', ToastAndroid.SHORT);
@@ -227,13 +223,11 @@ const Raised_Ticket = () => {
 
             if (!response.ok) {
                 const dataDeleteticketError = await response.json();
-                console.log(dataDeleteticketError)
 
                 throw new Error('Failed to delete data');
             }
 
             const Deleteticketdata = await response.json();
-            console.log(Deleteticketdata, 'Delelte data')
 
 
             setLoading(true)
@@ -294,7 +288,7 @@ const Raised_Ticket = () => {
             Linking.openURL(`tel:${val}`);
         } else if (key === 'email') {
             Linking.openURL(`mailto:${val}`);
-        } else if (key === 'location') {
+        } else if (key === 'location') {y
             Linking.openURL(val);
         }
     };
@@ -325,6 +319,7 @@ const Raised_Ticket = () => {
                 agent: selectedticket,
 
             }
+            console.log(updateTicketnewObject,'updateTicketnewObjecthhh')
 
             const ticketid = parseInt(openticketmodelsave)
 
@@ -368,7 +363,7 @@ const Raised_Ticket = () => {
 
 
     const onhandledeleteassign = async (deleteassignticket) => {
-
+     
         try {
             setLoading(true);
             const jwtTokenvalue = await AsyncStorage.getItem('jwtToken');
@@ -389,13 +384,11 @@ const Raised_Ticket = () => {
 
             if (!response.ok) {
                 const dataDeleteassignticketError = await response.json();
-                console.log(dataDeleteassignticketError)
 
                 throw new Error('Failed to delete data');
             }
 
             const Deleteassignticketdata = await response.json();
-            console.log(Deleteassignticketdata, 'Delelte data')
 
 
             setLoading(true)
@@ -418,7 +411,6 @@ const Raised_Ticket = () => {
 
 
     }
-
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

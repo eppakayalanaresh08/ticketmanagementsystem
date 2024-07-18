@@ -7,7 +7,6 @@ const About_Page = () => {
   return (
     <View>
       <StatusBar style="dark" />
-
       <Text>About_Page</Text>
       <TouchableOpacity onPress={() => navigation.navigate('HomePage')}>
         <Text>AboutButton</Text>

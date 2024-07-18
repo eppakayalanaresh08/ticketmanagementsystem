@@ -73,7 +73,7 @@ const Tickets = ({ route }) => {
     if (newItem === 'open_ticket') {
       ticketsfiltering = tickets.filter((eachticket) => eachticket.status === 'open')
     } else if (newItem === 'active_ticket') {
-      ticketsfiltering = tickets.filter((eachticket) => eachticket.status === 'active')
+      ticketsfiltering = tickets.filter((eachticket) => eachticket.status === 'ACTIVE')
     }
    else if (newItem === 'assigned_ticket') {
     ticketsfiltering = tickets.filter((eachticket) => eachticket.status === 'assigned')
@@ -308,7 +308,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-    // padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -346,7 +345,6 @@ const styles = StyleSheet.create({
 
   },
   titlestyle: {
-    // marginBottom: responsiveHeight(0.6),
     fontWeight: '500',
     fontSize: responsiveFontSize(1.4)
   },
@@ -379,7 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#99CC00',
   },
 
-  // 99CC00
+
   textStyle: {
     color: 'white',
     fontWeight: 'bold',
@@ -439,6 +437,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   }
-
+  
 
 })

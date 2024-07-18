@@ -66,7 +66,7 @@ const ViewTicket = ({ route }) => {
       setimageverification(data)
       // console.log(data); // Process the fetched data here
     } catch (error) {
-      console.error(error);
+      console.error(error,'hhh');
     }
     setLoading(false)
   };
@@ -442,28 +442,7 @@ const ViewTicket = ({ route }) => {
 export default ViewTicket
 
 const styles = StyleSheet.create({
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    // alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  rowElement: {
-    flexDirection: 'row'
-  }
-  ,
-  ticketleftitem: {
-    width: responsiveHeight(15)
-  },
+
   issuseInput: {
     borderRadius: responsiveHeight(1),
     borderColor: '#C4C4C4',
@@ -507,14 +486,9 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   }, closeButton: {
     alignSelf: 'flex-end',
-    // padding: 10,
     marginRight: responsiveHeight(2),
     marginBottom: responsiveHeight(3),
-
-
     borderRadius: 20,
-    // backgroundColor: '#e0e0e0',
-
   },
   bottomeachItem: {
     height: responsiveHeight(12),
@@ -526,17 +500,12 @@ const styles = StyleSheet.create({
     borderRadius: responsiveHeight(3)
   },
   bottomSheetContent: {
-
     flex: 1,
     flexDirection: 'row',
-
-
     justifyContent: 'space-evenly'
-    // alignItems: 'center',
-    // padding: 20,
+ 
   },
   modalViewPopUp: {
-
     backgroundColor: 'white',
     flex: 1,
     flexDirection: 'column',

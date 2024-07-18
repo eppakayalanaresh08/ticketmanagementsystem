@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView ,StatusBar} from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, StatusBar } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,7 +14,7 @@ const Register_Page = () => {
   const [password, setPassword] = useState('');
   return (
     <SafeAreaView>
-                        <StatusBar style="dark" />
+      <StatusBar style="dark" />
 
       <View style={{ marginHorizontal: responsiveWidth(5) }}>
 
@@ -26,7 +26,7 @@ const Register_Page = () => {
         </View>
         <View style={{ marginTop: responsiveHeight(8) }}>
           <KeyboardAvoidingView>
-            <TextInput placeholder="Username" onChangeText={data=>setUsername(data)} style={[styles.inputText]} />
+            <TextInput placeholder="Username" onChangeText={data => setUsername(data)} style={[styles.inputText]} />
             <TextInput placeholder="Password" secureTextEntry={true} onChangeText={setPassword} style={[styles.inputText]} />
             <TextInput placeholder="Confirm Password" secureTextEntry={true} onChangeText={setPassword} style={[styles.inputText]} />
 

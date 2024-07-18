@@ -120,24 +120,22 @@ const Technicains = () => {
 
             const responseDataEmployee = responseData.map(item => ({
                 ...item,
-                // role: item.role.replace('_', ' ').toUpperCase(),
-                email: item.email.toUpperCase(),
-                first_name: item.first_name.toUpperCase(),
-
-                last_name: item.last_name.toUpperCase(),
+                role: item.role.replace('_', ' '),
+          
 
 
-                // date_joined: formatDate(item.date_joined),
+                date_joined: formatDate(item.date_joined),
 
             }));
 
             console.log(responseData,'responseData')
-            setDataroletech(responseData);
+            setDataroletech(responseDataEmployee);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching data:', error);
             setLoading(false);
         }
+        
     };
 
     useFocusEffect(
@@ -696,8 +694,8 @@ const Technicains = () => {
                                     <Text style={[styles.cell,{fontSize:responsiveFontSize(0.9)}]}>{item.first_name} {item.last_name}</Text>
 
                                     <Text style={[styles.cell,]}>{item.mobile}</Text>
-                                    <Text style={[styles.cell,{fontSize:responsiveFontSize(0.8)}]}>{item.email.toUpperCase()}</Text>
-                                    <Text style={[styles.cell,{fontWeight:'800',fontSize:responsiveFontSize(0.8)}]}>{item.role.toUpperCase()}</Text>
+                                    <Text style={[styles.cell,{fontSize:responsiveFontSize(0.8)}]}>{item.email}</Text>
+                                    <Text style={[styles.cell,{fontWeight:'800',fontSize:responsiveFontSize(0.8)}]}>{item.role}</Text>
 
                                     <Text style={styles.cell}>{item.date_joined}</Text>
 

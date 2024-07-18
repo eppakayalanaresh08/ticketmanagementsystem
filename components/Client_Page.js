@@ -1159,7 +1159,7 @@ const Client_Page = () => {
                                                 <Picker.Item label="Select Role" value='' style={{ fontSize: responsiveFontSize(1.5) }}
                                                 />
                                                 {role.map((item, index) => (
-                                                    <Picker.Item key={index} label={item.toUpperCase()} value={item} style={{ fontSize: responsiveFontSize(1.2) }} />
+                                                    <Picker.Item key={index} label={item} value={item} style={{ fontSize: responsiveFontSize(1.2) }} />
                                                 ))}
                                             </Picker>
                                         </View>

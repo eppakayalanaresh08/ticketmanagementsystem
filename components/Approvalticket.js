@@ -41,6 +41,8 @@ const Tickets = () => {
             const jwtToken = await AsyncStorage.getItem('jwtToken');
             const url = 'https://shubhansh7777.pythonanywhere.com/ticket/'
 
+            
+
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -552,7 +554,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10,
-        // padding: 35,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
@@ -570,7 +571,6 @@ const styles = StyleSheet.create({
         margin: 20,
         backgroundColor: 'white',
         borderRadius: responsiveHeight(1),
-        // padding: responsiveHeight(2),
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -691,7 +691,6 @@ const styles = StyleSheet.create({
         padding: responsiveHeight(2),
         marginBottom: responsiveHeight(2),
         borderRadius: responsiveHeight(1)
-        // height: Dimensions.get('window').height * 0.8,
 
     },
     image: {
