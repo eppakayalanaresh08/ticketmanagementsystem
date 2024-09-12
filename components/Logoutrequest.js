@@ -356,7 +356,7 @@ const LogoutRequest = () => {
                     <ActivityIndicator animating={loading} size="large" color="#0000ff" />
                 </View>
             ) : (
-                <View style={{ marginHorizontal: responsiveWidth(5), marginTop: responsiveHeight(32) }}>
+                <View style={{ marginHorizontal: responsiveWidth(5), marginTop: responsiveHeight(20) }}>
                     <View style={{ elevation: 4, backgroundColor: '#fff', padding: responsiveHeight(2), paddingVertical: responsiveHeight(4), borderRadius: responsiveHeight(2) }}>
                         {showRequestSent ? (
                             countdownFinished ? (

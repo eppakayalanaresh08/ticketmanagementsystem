@@ -1,7 +1,9 @@
 
 import {
   StyleSheet, Text, View, FlatList, ToastAndroid, TextInput, TouchableOpacity, Pressable, TouchableWithoutFeedback,
-  StatusBar, Image, Dimensions, Linking
+
+  RefreshControl,
+  StatusBar, Image, Dimensions, Linking, ActivityIndicator
 } from 'react-native'
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { SimpleLineIcons } from '@expo/vector-icons';
@@ -17,22 +19,39 @@ import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-
-
+import { useNavigation } from '@react-navigation/native';
+import Fontisto from '@expo/vector-icons/Fontisto';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { format, parseISO } from 'date-fns';
+import Octicons from '@expo/vector-icons/Octicons';
 const ViewTicket = ({ route }) => {
   const { item } = route.params;
   const dataArray = Object.entries(item); // Convert object to key-value pairs
   // like this format
   // [["id", 2], ["title", "Change printer"], ["description", "Printer HP-009 need an replacement of cartridge at urgent manner"], ["severity", "high"], ["state", "telangana"], ["status", "verification"], ["owner", "enaresh@techadlien.com from techadlien"], ["agent", "nithin123@gmail.com"], ["created_at", "2024-05-25T12:19:24.561916+05:30"], ["updated_at", "2024-06-05T16:13:28.267588+05:30"]]
-  console.log(dataArray, 'object')
+  console.log(item, 'object')
+  const createdAt = parseISO(item.created_at);
+  const createdformattedDate = format(createdAt, 'dd, MMM yyyy');
+  const createdformattedTime = format(createdAt, 'hh:mm a');
+
+  const updatedAt = parseISO(item.updated_at);
+  const updaeformattedDate = format(updatedAt, 'dd, MMM yyyy');
+  const updateformattedTime = format(updatedAt, 'hh:mm a');
+ 
+
 
   const [nameComment, setnameComment] = useState('');
   const [listimages, setlistimages] = useState([]);
 
   const [roleCheck, setRoleCheck] = useState('')
   const [getImagesverification, setimageverification] = useState({})
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false);
+
   const bottomSheetRef = useRef(null);
+  const navigation = useNavigation();
 
   // variables
   const snapPoints = useMemo(() => ['65%'], []);
@@ -58,15 +77,21 @@ const ViewTicket = ({ route }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       // setProducts(data)
       setimageverification(data)
+      setRefreshing(false);
+
       // console.log(data); // Process the fetched data here
     } catch (error) {
-      console.error(error,'hhh');
+      ToastAndroid.show("Ticket not found", ToastAndroid.SHORT);
+
+
+
+      // 
     }
     setLoading(false)
   };
@@ -85,7 +110,6 @@ const ViewTicket = ({ route }) => {
   const onHandleAssignSubmit = async () => {
     console.log(listimages, 'update')
     try {
-      const jwtToken = await AsyncStorage.getItem('jwtToken');
 
       const nullvalue = '';
       let secondvalue = '';
@@ -123,6 +147,8 @@ const ViewTicket = ({ route }) => {
       formData.append('attachment_4', fourthvalue);
       formData.append('attachment_5', fiftyvalue);
 
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+
       const response = await fetch(`https://shubhansh7777.pythonanywhere.com/ticket/${item.id}/verification/`, {
         method: 'PUT',
         headers: {
@@ -135,16 +161,28 @@ const ViewTicket = ({ route }) => {
       if (!response.ok) {
         const errorcomment = await response.json();
         console.log(errorcomment, 'newupdate');
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (errorcomment.comment) {
+          ToastAndroid.show(`Please fill in all fields`, ToastAndroid.SHORT);
+        } else if (errorcomment) {
+          ToastAndroid.show(`Please fill in all fields`, ToastAndroid.SHORT);
+        }
+
       }
       const responsecomemnt = await response.json();
-      console.log(responsecomemnt, 'updatecomment');
+      // console.log(responsecomemnt, 'updatecomment');
+      // if (responsecomemnt.detail) {
+      // }
+      navigation.navigate('MyTickets')
+
 
       ToastAndroid.show('Successfully Commented', ToastAndroid.SHORT);
       setnameComment('');
       setlistimages([]);
+      setLoading(false)
+
     } catch (error) {
-      console.error('new', error);
+
+      // console.error('new', error);
     }
   };
 
@@ -231,12 +269,12 @@ const ViewTicket = ({ route }) => {
     setSelectedImage(null);
   };
 
-  
+
   const onhandleassignactive = async (idassign) => {
 
     try {
       const jwtToken = await AsyncStorage.getItem('jwtToken');
-    
+
       const response = await fetch(`https://shubhansh7777.pythonanywhere.com//ticket/${idassign}/activate/`, {
         method: 'PUT',
         headers: {
@@ -252,7 +290,7 @@ const ViewTicket = ({ route }) => {
         const erroractiveAssigntickets = await response.json();
         console.log(erroractiveAssigntickets, 'newupdate')
 
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // throw new Error(`HTTP error! status: ${response.status}`);
       }
       const responseAssignticket = await response.json();
 
@@ -260,23 +298,219 @@ const ViewTicket = ({ route }) => {
       console.log(responseAssignticket, 'new')
       await fetchDatatickets();
       setLoading(true)
-      ToastAndroid.show('Successfully Activate Ticket', ToastAndroid.SHORT);
+      ToastAndroid.show('Successfully Activated Ticket', ToastAndroid.SHORT);
+      navigation.navigate('MyTickets')
 
 
     } catch (error) {
-      console.error('new', error);
+      // console.error('new', error);
     }
   }
 
+
+
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchDatatickets()
+  }, []);
+
+
+
+
+
+
+
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+
   return (
     <View>
-      <StatusBar style="dark" />
 
-      <ScrollView>
+      <ScrollView refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#8B78FF" // Customize refresh control color
+        />
+      }>
 
 
 
-        <View style={styles.modalViewPopUp}>
+
+        <View style={{ marginHorizontal: responsiveHeight(3) }}>
+
+          <View style={[styles.containercard,]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between',alignItems:'flex-start', width: '90%' }}>
+              <View style={[styles.containerprofileText,]} >
+                <View  style={{flexDirection:'column' ,justifyContent:'center',alignItems:'center'}}>
+                <Image source={require('../assets/user.png')} style={[styles.imageIcon,{marginBottom:responsiveHeight(3)}]} />
+                <TouchableOpacity onPress={() => handlePress('location', item.owner.location)}>
+                <Entypo name="location" size={responsiveHeight(2)} color="#8B78FF" />
+                </TouchableOpacity>
+                </View>
+                <View style={styles.nameTextProfile}>
+
+                  <Text style={styles.assignedText}>Assigend by</Text>
+                  <TouchableOpacity onPress={() => handlePress('email', item.owner.email)}>
+                  <Text style={styles.nameText}>{item.owner.email}</Text>
+                  </TouchableOpacity>
+                  <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'center'}}>
+                  <FontAwesome5 name="city" size={responsiveHeight(1.7)} color="#8B78FF" />
+
+                   <Text style={[styles.nameText,{marginLeft:responsiveHeight(0.5)}]}>{item.state}</Text>
+                   </View>
+                  <TouchableOpacity onPress={() => handlePress('mobile', item.owner.mobile)} style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'center'}}>
+                  <Ionicons name="call" size={responsiveHeight(1.7)} color="#8B78FF" />
+                   <Text style={[styles.nameText,{marginLeft:responsiveHeight(0.5)}]}>{item.owner.mobile}</Text>
+                   </TouchableOpacity>
+
+                   <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'center'}}>
+                  <Octicons name="organization" size={responsiveHeight(1.7)} color="#8B78FF" />
+
+                   <Text style={[styles.nameText,{marginLeft:responsiveHeight(0.5)}]}>{item.owner.organization}</Text>
+                   </View>
+
+
+               
+
+          
+                </View>
+              </View>
+
+              <View style={styles.containerprofileText}>
+                <Image source={require('../assets/user.png')} style={styles.imageIcon} />
+                <View style={styles.nameTextProfile}>
+
+                  <Text style={styles.assignedText}>Agent</Text>
+                  <Text style={styles.nameText}>{item.agent}</Text>
+                </View>
+              </View>
+            </View>
+          </View >
+          <View style={styles.containercard}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '90%' }}>
+            <View style={styles.containerprofileText}>
+              <View style={styles.datebg}>
+                <Image source={require('../assets/ticket.png')} style={{ height: responsiveHeight(3), width: responsiveHeight(3) }} />
+
+              </View>
+
+              <View style={styles.nameTextProfile}>
+                <Text style={styles.assignedText}>Status</Text>
+                <View style={[styles.containerstatus,{marginTop:responsiveHeight(0.4)}]} >
+                  <Text style={[styles.nameText,{color:'#8B78FF',fontSize:responsiveFontSize(1.2),fontWeight:'700'}]}>{item.status}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.containerprofileText}>
+            
+
+              <View style={styles.nameTextProfile}>
+                <Text style={styles.assignedText}>Severity</Text>
+                <View style={[styles.containerstatus,{marginTop:responsiveHeight(0.2)}]} >
+                  <Text style={[styles.nameText,{color:'#8B78FF',fontSize:responsiveFontSize(1.2),fontWeight:'700'}]}>{item.severity}</Text>
+                </View>
+              </View>
+            </View>
+            </View>
+          </View>
+
+
+          <View style={styles.containercard}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '90%' }}>
+            <View style={styles.containerprofileText}>
+              <View style={styles.datebg}>
+                <Fontisto name="date" size={responsiveHeight(2.2)} color="#ffffff" />
+              </View>
+
+              <View style={styles.nameTextProfile}>
+                <Text style={styles.assignedText}>Created at</Text>
+                <Text style={styles.nameText}>{createdformattedDate}</Text>
+              </View>
+            </View>
+            <View style={styles.containerprofileText}>
+              <View style={styles.datebg}>
+                <AntDesign name="clockcircle"  size={responsiveHeight(2.2)} color="#ffffff" />
+              </View>
+
+              <View style={styles.nameTextProfile}>
+                <Text style={styles.assignedText}>Time</Text>
+                <Text style={styles.nameText}>{createdformattedTime}</Text>
+              </View>
+            </View>
+            </View>
+          </View>
+
+
+
+
+
+
+
+
+
+
+
+          <View style={styles.containercard}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '90%' }}>
+            <View style={styles.containerprofileText}>
+              <View style={styles.datebg}>
+                <Fontisto name="date" size={responsiveHeight(2.2)} color="#ffffff" />
+              </View>
+
+              <View style={styles.nameTextProfile}>
+                <Text style={styles.assignedText}>Updated at </Text>
+                <Text style={styles.nameText}>{updaeformattedDate}</Text>
+              </View>
+            </View>
+            <View style={styles.containerprofileText}>
+              <View style={styles.datebg}>
+                <AntDesign name="clockcircle"  size={responsiveHeight(2.2)} color="#ffffff" />
+              </View>
+
+              <View style={styles.nameTextProfile}>
+                <Text style={styles.assignedText}>Time</Text>
+                <Text style={styles.nameText}>{updateformattedTime}</Text>
+              </View>
+              
+            </View>
+            </View>
+          </View>
+      
+
+
+          <View style={styles.containercard}>
+            <Text style={styles.nameText}>Title</Text>
+            <Text style={styles.titleheading}>{item.title}</Text>
+          </View>
+
+          <View style={styles.containercard}>
+            <Text style={styles.nameText}>Description</Text>
+            <Text style={[styles.titleheading, { fontSize: responsiveFontSize(1.2) }]}>{item.description}</Text>
+          </View>
+
+
+        </View>
+
+
+
+
+
+
+
+
+
+
+        {/* <View style={styles.modalViewPopUp}>
           <View style={{ alignSelf: 'flex-end' }}>
 
           </View>
@@ -323,117 +557,117 @@ const ViewTicket = ({ route }) => {
 
 
           </View>
-        </View>
+        </View> */}
 
-<View style={{flex:1,flexDirection:'column',justifyContentc:'center',alignItems:'center'}}>
-        {(statuscheckshowcomment === 'assigned') ?
-        <Pressable style={{flex:1,justifyContent:'center',alignItems:'center',  backgroundColor: 'rgb(60, 179, 113)',marginTop:responsiveHeight(2),padding:responsiveHeight(1.2),borderRadius:responsiveHeight(1.3)}} 
-        onPress={() => onhandleassignactive(item.id)}>
-          <Text style={{color:'#fff'}}>Activate Ticket</Text>
-        </Pressable>  :
-        <View>
-        {(statuscheckshowcomment === 'verification' || statuscheckshowcomment === 'close') ?
-          <View style={styles.containercomments}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontWeight: '500' }}>Comment :</Text>
-              <Text>{getImagesverification.comment}</Text>
+        <View style={{ flex: 1, flexDirection: 'column', justifyContentc: 'center', alignItems: 'center' }}>
+          {(statuscheckshowcomment === 'assigned') ?
+            <Pressable style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(60, 179, 113)', marginTop: responsiveHeight(2), padding: responsiveHeight(1.2), borderRadius: responsiveHeight(1.3) }}
+              onPress={() => onhandleassignactive(item.id)}>
+              <Text style={{ color: '#fff' }}>Start Work</Text>
+            </Pressable> :
+            <View>
+              {(statuscheckshowcomment === 'verification' || statuscheckshowcomment === 'close') ?
+                <View style={styles.containercomments}>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={{ fontWeight: '500' }}>Comment :</Text>
+                    <Text>{getImagesverification.comment}</Text>
 
 
-            </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {getImagesverification && getImagesverification.attachments &&
-                Object.values(getImagesverification.attachments)
-                  .filter(url => url !== null)
-                  .map((url, index) => (
-                    <TouchableOpacity key={index} onPress={() => handleImagePress(url)} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: "center", marginRight: responsiveHeight(2) }}>
+                  </View>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                    {getImagesverification && getImagesverification.attachments &&
+                      Object.values(getImagesverification.attachments)
+                        .filter(url => url !== null)
+                        .map((url, index) => (
+                          <TouchableOpacity key={index} onPress={() => handleImagePress(url)} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: "center", marginRight: responsiveHeight(2) }}>
+                            <Image
+                              source={{ uri: url }}
+                              style={styles.image}
+                            />
+                            <Text style={{ fontSize: responsiveFontSize(1.2), fontWeight: '500' }}>Image {index + 1}</Text>
+                          </TouchableOpacity>
+                        ))
+                    }
+                  </View>
+
+
+
+                  <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
+                    <View style={styles.modalContent}>
+                      <TouchableOpacity onPress={closeModal} style={styles.closeButtonimage}>
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                      {/* {selectedImage && ( */}
                       <Image
-                        source={{ uri: url }}
-                        style={styles.image}
+                        source={{ uri: selectedImage }}
+                        style={styles.fullImage}
+                        resizeMode="contain"
                       />
-                      <Text style={{ fontSize: responsiveFontSize(1.2), fontWeight: '500' }}>Image {index + 1}</Text>
+
+                    </View>
+                  </Modal>
+                </View>
+                :
+                <View style={{ marginLeft: responsiveHeight(2) }}>
+                  <View style={{ marginVertical: responsiveHeight(1) }}>
+                    <Text style={{ color: 'gray', fontWeight: '500', fontSize: responsiveFontSize(1.5) }}>Comment</Text>
+                    <TextInput
+                      placeholder="Enter the comment..."
+                      numberOfLines={5}
+                      multiline={true}
+                      onChangeText={(data) => setnameComment(data)}
+                      style={styles.issuseInput}
+                      value={nameComment}
+                    />
+                  </View>
+                  <View>
+                    <Text style={{ color: 'gray', fontWeight: '500', fontSize: responsiveFontSize(1.5), marginBottom: responsiveHeight(0.2) }}>
+                      File Upload
+                    </Text>
+                    <TouchableOpacity style={styles.fileuploadview} onPress={() => bottomSheetRef.current?.expand()}>
+                      <SimpleLineIcons name="cloud-upload" size={24} color="black" />
+                      <Text style={{ fontSize: responsiveFontSize(1.2), color: 'gray', textAlign: 'center' }}>
+                        Select files from your device
+                        {'\n'}only upload five images or{' < '}5
+                      </Text>
                     </TouchableOpacity>
-                  ))
+                  </View>
+
+                  {listimages.map((eachimage, index) => (
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }} key={index}>
+                      <Text style={{ fontSize: responsiveFontSize(1.3), marginRight: responsiveHeight(0.3) }}>{index + 1}.</Text>
+                      <Text style={{ fontSize: responsiveFontSize(1.3) }}>image</Text>
+
+                    </View>
+                  ))}
+
+                  <View style={{ flexDirection: 'row', marginTop: responsiveHeight(2), justifyContent: 'center' }}>
+                    <TouchableOpacity style={[styles.button, styles.buttonSubmit]} onPress={onHandleAssignSubmit}>
+                      <Text style={styles.textStyle}>Submit</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints} enablePanDownToClose={true}>
+
+                    <TouchableOpacity style={styles.closeButton} onPress={() => bottomSheetRef.current?.close()}>
+                      <SimpleLineIcons name="close" size={24} color="black" />
+                    </TouchableOpacity>
+                    <View style={styles.bottomSheetContent}>
+                      <TouchableOpacity style={styles.bottomeachItem} onPress={pickImage}>
+                        <FontAwesome name="camera" size={responsiveHeight(3.2)} color="black" />
+                        <Text>Camera</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.bottomeachItem} onPress={pickDocument}>
+                        <MaterialIcons name="perm-media" size={responsiveHeight(3.2)} color="black" />
+                        <Text>Gallery</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </BottomSheet>
+                </View>
+
               }
             </View>
-
-
-
-            <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
-              <View style={styles.modalContent}>
-                <TouchableOpacity onPress={closeModal} style={styles.closeButtonimage}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-                {/* {selectedImage && ( */}
-                <Image
-                  source={{ uri: selectedImage }}
-                  style={styles.fullImage}
-                  resizeMode="contain"
-                />
-               
-              </View>
-            </Modal>
-          </View>
-          :
-          <View style={{ marginLeft: responsiveHeight(2) }}>
-            <View style={{ marginVertical: responsiveHeight(1) }}>
-              <Text style={{ color: 'gray', fontWeight: '500', fontSize: responsiveFontSize(1.5) }}>Comment</Text>
-              <TextInput
-                placeholder="Enter the comment..."
-                numberOfLines={5}
-                multiline={true}
-                onChangeText={(data) => setnameComment(data)}
-                style={styles.issuseInput}
-                value={nameComment}
-              />
-            </View>
-            <View>
-              <Text style={{ color: 'gray', fontWeight: '500', fontSize: responsiveFontSize(1.5), marginBottom: responsiveHeight(0.2) }}>
-                File Upload
-              </Text>
-              <TouchableOpacity style={styles.fileuploadview} onPress={() => bottomSheetRef.current?.expand()}>
-                <SimpleLineIcons name="cloud-upload" size={24} color="black" />
-                <Text style={{ fontSize: responsiveFontSize(1.2), color: 'gray', textAlign: 'center' }}>
-                  Select files from your device
-                  {'\n'}only upload five images or{' < '}5
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {listimages.map((eachimage, index) => (
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }} key={index}>
-                <Text style={{ fontSize: responsiveFontSize(1.3), marginRight: responsiveHeight(0.3) }}>{index + 1}.</Text>
-                <Text style={{ fontSize: responsiveFontSize(1.3) }}>image</Text>
-
-              </View>
-            ))}
-
-            <View style={{ flexDirection: 'row', marginTop: responsiveHeight(2), justifyContent: 'center' }}>
-              <Pressable style={[styles.button, styles.buttonSubmit]} onPress={onHandleAssignSubmit}>
-                <Text style={styles.textStyle}>Submit</Text>
-              </Pressable>
-            </View>
-            <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints} enablePanDownToClose={true}>
-
-              <TouchableOpacity style={styles.closeButton} onPress={() => bottomSheetRef.current?.close()}>
-                <SimpleLineIcons name="close" size={24} color="black" />
-              </TouchableOpacity>
-              <View style={styles.bottomSheetContent}>
-                <TouchableOpacity style={styles.bottomeachItem} onPress={pickImage}>
-                  <FontAwesome name="camera" size={responsiveHeight(3.2)} color="black" />
-                  <Text>Camera</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.bottomeachItem} onPress={pickDocument}>
-                  <MaterialIcons name="perm-media" size={responsiveHeight(3.2)} color="black" />
-                  <Text>Gallery</Text>
-                </TouchableOpacity>
-              </View>
-            </BottomSheet>
-          </View>
-          
           }
-          </View>
-        }
         </View>
       </ScrollView>
     </View>
@@ -447,7 +681,7 @@ const styles = StyleSheet.create({
     borderRadius: responsiveHeight(1),
     borderColor: '#C4C4C4',
     borderWidth: responsiveHeight(0.20),
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#ffffff',
     textAlignVertical: 'top',
     padding: responsiveHeight(1),
     width: responsiveHeight(45)
@@ -476,7 +710,7 @@ const styles = StyleSheet.create({
 
   buttonSubmit: {
     marginTop: responsiveHeight(1),
-    backgroundColor: '#99CC00',
+    backgroundColor: '#8B78FF',
     width: responsiveHeight(20),
     marginBottom: responsiveHeight(10)
 
@@ -503,7 +737,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-evenly'
- 
+
   },
   modalViewPopUp: {
     backgroundColor: 'white',
@@ -548,14 +782,14 @@ const styles = StyleSheet.create({
   },
   containercomments: {
     marginHorizontal: responsiveHeight(2.5),
-    flex:1,
-    width:Dimensions.get('window').width*0.9,
+    flex: 1,
+    width: Dimensions.get('window').width * 0.9,
     borderColor: 'lightgray',
     borderWidth: 1,
     marginTop: responsiveHeight(2),
     padding: responsiveHeight(2),
     marginBottom: responsiveHeight(2),
-    borderRadius:responsiveHeight(1)
+    borderRadius: responsiveHeight(1)
     // height: Dimensions.get('window').height * 0.8,
 
   },
@@ -588,5 +822,78 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: 'white',
   },
+  containerprofileText: {
+    flexDirection: 'row',
+    justifyContent:'flex-start',
+    alignItems:'center',
+    width:'40%'
 
+    // height: 200,
+  },
+  nameTextProfile: {
+    flexDirection: "column",
+    marginLeft: responsiveHeight(1),
+    marginBottom: responsiveHeight(0.8)
+  },
+
+  assignedText: {
+    fontSize: responsiveFontSize(1.6),
+    fontWeight: '500',
+    marginTop: responsiveHeight(0.5)
+    // lineHeight:responsiveHeight(2)
+  },
+  nameText: {
+    fontSize: responsiveFontSize(1.4),
+    color: '#6E6A7C',
+    fontWeight: '500',
+
+  },
+
+  imageIcon: {
+    height: responsiveHeight(5),
+    width: responsiveHeight(5),
+    // marginBottom: responsiveHeight(1)
+  },
+  datebg: {
+    backgroundColor: "#8B78FF",
+    borderRadius: responsiveHeight(3),
+    height: responsiveHeight(5),
+    width: responsiveHeight(5),
+    flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  containercard: {
+    paddingHorizontal: responsiveHeight(2),
+    paddingVertical: responsiveHeight(2),
+    backgroundColor: "#ffffff",
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    borderRadius: responsiveHeight(1.5),
+    width: '100%',
+    marginVertical: responsiveHeight(1)
+  },
+  titleheading: {
+    marginTop: responsiveHeight(0.8),
+    color: '#24252C',
+    fontSize: responsiveFontSize(1.8),
+    fontWeight: '500'
+  },
+  containerstatus: {
+    flexDirection:'row',
+    justifyContent:'center',
+    alignItems:'center',
+    // backgroundColor:'',
+    borderColor: "#8B78FF",
+    borderWidth: responsiveHeight(0.2),
+    borderRadius: responsiveHeight(0.5),
+    padding:responsiveHeight(0.2)
+    // fontSize:responsiveFontSize(1)
+  }
 })

@@ -1,25 +1,31 @@
 {
   "expo": {
-    "name": "TechAdlien",
-    "slug": "TechAdlien",
+    "name": "CSM",
+    "slug": "CSM",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.jpeg",
+    "icon": "./assets/TadcmsLogo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/TadcmsLogo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1f3037"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "enabled": true,
+      "url": "https://u.expo.dev/d6f63307-dc37-4c1f-b68c-6b05f2698c10"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nareshweb.myapp"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.jpeg",
+        "foregroundImage": "./assets/TadcmsLogo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.nareshweb.myapp",
@@ -41,13 +47,13 @@
       }
     },
     "web": {
-      "favicon": "./assets/logo.jpeg"
+      "favicon": "./assets/TadcmsLogo.png"
     },
     "plugins": [
       [
         "expo-notifications",
         {
-          "icon": "./assets/logo.jpeg",
+          "icon": "./assets/TadcmsLogo.png",
           "color": "#ffffff",
           "defaultChannel": "default",
           "sounds": [
@@ -62,9 +68,12 @@
         }
       ]
     ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "eas": {
-        "projectId": "28090489-312b-43a1-969e-fd45b76f0590"
+        "projectId": "d6f63307-dc37-4c1f-b68c-6b05f2698c10"
       }
     }
   }

@@ -253,67 +253,67 @@
 
 
 
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import * as Location from 'expo-location';
+// import React, { useEffect } from 'react';
+// import { StyleSheet, Text, View } from 'react-native';
+// import * as Location from 'expo-location';
 
-export default function App() {
-  useEffect(() => {
-    // Request permission to access location
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
-        return;
-      }
+// export default function App() {
+//   useEffect(() => {
+//     // Request permission to access location
+//     (async () => {
+//       let { status } = await Location.requestForegroundPermissionsAsync();
+//       if (status !== 'granted') {
+//         console.log('Permission to access location was denied');
+//         return;
+//       }
 
-      // Subscribe to location updates
-      Location.watchPositionAsync({ accuracy: Location.Accuracy.High, timeInterval: 5000 }, (location) => {
-        console.log(location.coords.latitude, location.coords.longitude)
+//       // Subscribe to location updates
+//       Location.watchPositionAsync({ accuracy: Location.Accuracy.High, timeInterval: 5000 }, (location) => {
+//         console.log(location.coords.latitude, location.coords.longitude)
 
-        // Send location data to server
-        sendLocationToServer(location.coords.latitude, location.coords.longitude);
-      });
-    })();
-  }, []);
+//         // Send location data to server
+//         sendLocationToServer(location.coords.latitude, location.coords.longitude);
+//       });
+//     })();
+//   }, []);
 
-  const sendLocationToServer = (latitude, longitude) => {
-    console.log(latitude,longitude)
-    // Example POST request to your server
-    fetch('https://your-server-url.com/update-location', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        latitude,
-        longitude,
-      }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Location update successful:', data);
-    })
-    // .catch(error => {
-    //   console.error('Error updating location:', error);
-    // });
-  };
+//   const sendLocationToServer = (latitude, longitude) => {
+//     console.log(latitude,longitude)
+//     // Example POST request to your server
+//     fetch('https://your-server-url.com/update-location', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         latitude,
+//         longitude,
+//       }),
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log('Location update successful:', data);
+//     })
+//     // .catch(error => {
+//     //   console.error('Error updating location:', error);
+//     // });
+//   };
 
-  return (
-    <View style={styles.container}>
-      <Text>Live Location Tracker</Text>
-    </View>
-  );
-}
+//   return (
+//     <View style={styles.container}>
+//       <Text>Live Location Tracker</Text>
+//     </View>
+//   );
+// }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+// });
 
 
 
@@ -742,3 +742,87 @@ const styles = StyleSheet.create({
 //     justifyContent: 'center',
 //   },
 // });
+
+
+
+
+
+
+
+// utils/useLocationTracking.js
+
+import { useEffect } from 'react';
+import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const UseLocationTracking = () => {
+  useEffect(() => {
+    const sendLocation = async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+
+        const intervalId = setInterval(async () => {
+          try {
+            const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+            await sendLocationToServer(location.coords.latitude, location.coords.longitude);
+          } catch (error) {
+            // console.error('Error fetching location:', error);
+          }
+        }, 60000); // Fetch location every 1 minute (60000 milliseconds)
+
+        // Fetch location immediately on component mount
+        const initialLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        await sendLocationToServer(initialLocation.coords.latitude, initialLocation.coords.longitude);
+
+        return () => clearInterval(intervalId); // Clean up interval on component unmount
+      } catch (error) {
+        // console.error('Error setting up location tracking:', error);
+      }
+    };
+
+    sendLocation();
+
+    return () => {
+      // Cleanup logic if needed
+    };
+  }, []);
+
+  const sendLocationToServer = async (latitude, longitude) => {
+    try {
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      const agent_Id = await AsyncStorage.getItem('userId');
+
+      const locationData = {
+        latitude,
+        longitude,
+        agent: parseInt(agent_Id)
+      };
+
+      const response = await fetch('https://shubhansh7777.pythonanywhere.com/agent/location/', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(locationData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        // console.log('Error sending location data:', errorData);
+      }
+
+      const responseData = await response.json();
+      console.log('Location data sent successfully:', responseData);
+    } catch (error) {
+      
+      // console.error('Error sending location data:', error);
+    }
+  };
+};
+
+export default UseLocationTracking;

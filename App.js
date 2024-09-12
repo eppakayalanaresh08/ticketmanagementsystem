@@ -26,7 +26,7 @@
 //   const [isLoading, setIsLoading] = useState(true);
 //   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  
+
 //   useEffect(() => {
 //     const checkAuthentication = async () => {
 //       try {
@@ -72,7 +72,7 @@
 //         {/* CloseTickets */}
 
 //         {/* Judgementticket */}
-      
+
 //       </Stack.Navigator>
 //     </NavigationContainer>
 //   );
@@ -85,7 +85,7 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator ,StatusBar} from 'react-native';
 import Login_page from './components/Login_page';
 import Home_Page from './components/Home_Page';
 import About_Page from './components/About_Page';
@@ -103,14 +103,21 @@ import Tickets from './components/Tickets';
 import LogoutRequest from './components/Logoutrequest';
 import NotificationsApp from './components/NotificationsApp';
 
-import LocationtrackingApp from './components/LocationtrackingApp';
+// import LocationtrackingApp from './components/LocationtrackingApp';
+import UseLocationTracking from './components/LocationtrackingApp';
+import Assign_Ticket from './components/Assign_Ticket';
 
 const Stack = createStackNavigator();
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
   // const [navKey, setNavKey] = useState(0);
+
+  UseLocationTracking()
+  
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -119,6 +126,7 @@ const App = () => {
         if (jwtToken) {
           setIsLoggedIn(true);
         }
+     
       } catch (error) {
         // console.error("Error checking JWT token", error);
       } finally {
@@ -140,6 +148,8 @@ const App = () => {
 
   return (
     <NavigationContainer >
+            <StatusBar barStyle="light-content" backgroundColor="#000000" />
+
       <Stack.Navigator initialRouteName={isLoggedIn ? 'HomePage' : 'LoginPage'}>
         <Stack.Screen name="HomePage" component={Home_Page} options={{ headerShown: false }} />
         <Stack.Screen name="LoginPage" component={Login_page} options={{ headerShown: false }} />
@@ -148,7 +158,7 @@ const App = () => {
         <Stack.Screen name="UserPage" component={User_Page} options={{ headerShown: false }} />
         <Stack.Screen name="Create Ticket" component={Create_Ticket} />
         <Stack.Screen name="Raised Ticket" component={Raised_Ticket} />
-        <Stack.Screen name="logoutrequest" component={LogoutRequest}   options={{ headerShown: false }} />
+        <Stack.Screen name="logoutrequest" component={LogoutRequest} options={{ headerShown: false }} />
 
         <Stack.Screen name="Printerticket" component={PrinterTicket_Page} />
         <Stack.Screen name="Verification Tickets" component={Approvalticket} />
@@ -157,7 +167,8 @@ const App = () => {
         <Stack.Screen name="Change Password" component={Forgot_Passworrd} />
         <Stack.Screen name="View Tickets" component={Tickets} />
         <Stack.Screen name="NotificationsApp" component={NotificationsApp} />
-        <Stack.Screen name="LocationtrackingApp" component={LocationtrackingApp} />
+        <Stack.Screen name="LocationtrackingApp" component={UseLocationTracking} />
+        {/* <Stack.Screen name="MyTickets" component={Assign_Ticket}   /> */}
 
       </Stack.Navigator>
     </NavigationContainer>
